@@ -1,7 +1,13 @@
 {
   "name": "git-stash-manager",
   "displayName": "Git Stash Manager",
+  "publisher": "JaredChristensen",
   "description": "A lightweight Git stash manager for VS Code that lets you view, apply, and drop stashes directly from the sidebar.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jared-christensen/git-stash-manager"
+  },
+  "icon": "images/icon.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.94.0"
