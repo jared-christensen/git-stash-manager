@@ -15,19 +15,46 @@
   "main": "./out/extension.js",
   "contributes": {
     "views": {
-      "explorer": [
+      "scm": [
         {
           "id": "stashExplorer",
-          "name": "Git Stashes"
+          "name": "Stashes"
         }
       ]
     },
     "commands": [
       {
-        "command": "git-stash-manager.helloWorld",
-        "title": "Hello World"
+        "command": "git-stash-manager.applyStash",
+        "title": "Apply"
+      },
+      {
+        "command": "git-stash-manager.popStash",
+        "title": "Pop"
+      },
+      {
+        "command": "git-stash-manager.dropStash",
+        "title": "Drop"
       }
-    ]
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "git-stash-manager.applyStash",
+          "when": "view == stashExplorer && viewItem == stashItem",
+          "group": "inline"
+        },
+        {
+          "command": "git-stash-manager.popStash",
+          "when": "view == stashExplorer && viewItem == stashItem",
+          "group": "inline"
+        },
+        {
+          "command": "git-stash-manager.dropStash",
+          "when": "view == stashExplorer && viewItem == stashItem",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

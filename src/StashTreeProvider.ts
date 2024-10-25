@@ -63,6 +63,10 @@ export class StashTreeProvider implements vscode.TreeDataProvider<StashItem> {
   getTreeItem(element: StashItem): vscode.TreeItem {
     return element;
   }
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire();
+  }
 }
 
 class StashItem extends vscode.TreeItem {
