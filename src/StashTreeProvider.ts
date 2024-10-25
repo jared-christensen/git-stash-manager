@@ -13,7 +13,6 @@ export class StashTreeProvider implements vscode.TreeDataProvider<StashItem> {
 
   constructor() {
     const rootPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath || "";
-    console.log("Initializing simple-git with rootPath:", rootPath); // Debug line
     this.git = simpleGit(rootPath);
   }
 
@@ -27,7 +26,7 @@ export class StashTreeProvider implements vscode.TreeDataProvider<StashItem> {
 
     const stashes = await this.getStashes();
     return stashes.map(
-      (stash, index) => new StashItem(`stash@{${index}}`, stash)
+      (stash) => new StashItem(stash.id, stash.description, stash.tooltip)
     );
   }
 
@@ -38,12 +37,23 @@ export class StashTreeProvider implements vscode.TreeDataProvider<StashItem> {
     return fs.existsSync(path.join(rootPath, ".git"));
   }
 
-  async getStashes(): Promise<string[]> {
-    console.log("getStashes:");
+  async getStashes(): Promise<
+    { id: string; description: string; tooltip: string }[]
+  > {
     try {
       const stashList = await this.git.stashList();
-      console.log("Stashes found:", stashList.all);
-      return stashList.all.map((stash) => stash.message);
+      return stashList.all.map((stash, index) => {
+        // Parse the stash message to separate branch, commit, and message details
+        const [_, branch, commit, message] = stash.message.match(
+          /WIP on (.*?): (\S+) (.*)/
+        ) || ["", "Unknown branch", "Unknown commit", stash.message];
+
+        return {
+          id: `stash@{${index}}`,
+          description: `${branch}: ${message}`,
+          tooltip: `Commit: ${commit}\nMessage: ${message}`,
+        };
+      });
     } catch (error) {
       console.error("Error retrieving stashes:", error);
       return [];
@@ -56,8 +66,13 @@ export class StashTreeProvider implements vscode.TreeDataProvider<StashItem> {
 }
 
 class StashItem extends vscode.TreeItem {
-  constructor(public readonly label: string, public readonly tooltip: string) {
+  constructor(
+    public readonly label: string,
+    public readonly description: string,
+    public readonly tooltip: string
+  ) {
     super(label);
+    this.description = description;
     this.tooltip = tooltip;
     this.contextValue = "stashItem";
   }
