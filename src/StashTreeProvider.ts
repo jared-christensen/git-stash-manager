@@ -1,4 +1,6 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
 import simpleGit, { SimpleGit } from "simple-git";
 
 export class StashTreeProvider implements vscode.TreeDataProvider<StashItem> {
@@ -11,10 +13,23 @@ export class StashTreeProvider implements vscode.TreeDataProvider<StashItem> {
 
   async getChildren(element?: StashItem): Promise<StashItem[]> {
     if (element) return [];
+
+    if (!this.isGitRepository()) {
+      vscode.window.showErrorMessage("This workspace is not a Git repository.");
+      return [];
+    }
+
     const stashes = await this.getStashes();
     return stashes.map(
       (stash, index) => new StashItem(`stash@{${index}}`, stash)
     );
+  }
+
+  isGitRepository(): boolean {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) return false;
+    const rootPath = workspaceFolders[0].uri.fsPath;
+    return fs.existsSync(path.join(rootPath, ".git"));
   }
 
   async getStashes(): Promise<string[]> {
